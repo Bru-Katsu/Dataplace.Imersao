@@ -22,19 +22,22 @@ namespace Dataplace.Imersao.Core.Tests.Domain.Orcamentos
             // Arrange Act
             var orcamento = _fixture.NovoOrcamento();
 
-
             // Assert
-            Assert.True(orcamento.CdEmpresa == _fixture.CdEmpresa);
-            Assert.True(orcamento.CdFilial == _fixture.CdFilial);
+            Assert.Equal(_fixture.CdEmpresa, orcamento.CdEmpresa);
+            Assert.Equal(_fixture.CdFilial, orcamento.CdFilial);
+            
             Assert.Equal(_fixture.NumOrcaemtp, orcamento.NumOrcamento);
-            Assert.True(orcamento.Cliente.Codigo == _fixture.Cliente.Codigo);
-            Assert.True(orcamento.Usuario == _fixture.UserName);
-            Assert.True(orcamento.Usuario == _fixture.UserName);
-            Assert.True(orcamento.Situacao == Core.Domain.Orcamentos.Enums.OrcamentoStatusEnum.Aberto);
+
+            Assert.Equal(_fixture.Vendedor, orcamento.Vendedor);
+            Assert.Equal(_fixture.Cliente, orcamento.Cliente);
+            Assert.Equal(_fixture.UserName, orcamento.Usuario);
+
+            Assert.Equal(Core.Domain.Orcamentos.Enums.OrcamentoStatusEnum.Aberto, orcamento.Situacao);
+            
             Assert.Null(orcamento.Validade);
-            Assert.NotNull(orcamento.TabelaPreco);
-            Assert.Equal(_fixture.TavelaPreco.CdTabela, orcamento.TabelaPreco.CdTabela);
-            Assert.Equal(_fixture.TavelaPreco.SqTabela, orcamento.TabelaPreco.SqTabela);
+
+            Assert.NotNull(orcamento.TabelaPreco);            
+            Assert.Equal(_fixture.TabelaPreco, orcamento.TabelaPreco);
         }
 
         [Fact]
@@ -43,10 +46,8 @@ namespace Dataplace.Imersao.Core.Tests.Domain.Orcamentos
             // Arrange
             var orcamento = _fixture.NovoOrcamento();
 
-
             // Act
             orcamento.FecharOrcamento();
-
 
             // Assert
             Assert.Equal(Core.Domain.Orcamentos.Enums.OrcamentoStatusEnum.Fechado, orcamento.Situacao);
@@ -63,6 +64,95 @@ namespace Dataplace.Imersao.Core.Tests.Domain.Orcamentos
 
             // act & assert
             Assert.Throws<DomainException>(() => orcamento.FecharOrcamento());
+        }
+
+
+        [Fact]
+        public void ReabrirOrcamentoDeveRetornarStatusAberto()
+        {
+            // Arrange
+            var orcamento = _fixture.NovoOrcamento();
+            orcamento.FecharOrcamento();
+            // Act
+            orcamento.ReabrirOrcamento();
+
+            // Assert
+            Assert.Equal(Core.Domain.Orcamentos.Enums.OrcamentoStatusEnum.Aberto, orcamento.Situacao);
+            Assert.Null(orcamento.DtFechamento);
+        }
+
+
+        [Fact]
+        public void TentarReabrirOrcamentoJaAbertoRetornarException()
+        {
+            // arrange
+            var orcamento = _fixture.NovoOrcamento();
+
+            // act & assert
+            Assert.Throws<DomainException>(() => orcamento.ReabrirOrcamento());
+        }
+
+        [Fact]
+        public void CancelarOrcamentoDeveRetornarStatusCancelado()
+        {
+            // Arrange
+            var orcamento = _fixture.NovoOrcamento();
+            orcamento.FecharOrcamento();
+            // Act
+            orcamento.CancelarOrcamento();
+
+            // Assert
+            Assert.Equal(Core.Domain.Orcamentos.Enums.OrcamentoStatusEnum.Cancelado, orcamento.Situacao);
+            Assert.Null(orcamento.DtFechamento);
+        }
+
+
+        [Fact]
+        public void TentarCancelarOrcamentoJaCanceladoRetornarException()
+        {
+            // arrange
+            var orcamento = _fixture.NovoOrcamento();
+            orcamento.CancelarOrcamento();
+
+            // act & assert
+            Assert.Throws<DomainException>(() => orcamento.CancelarOrcamento());
+        }
+
+        [Fact]
+        public void DefinirDiasDeValidadeDataDeveEstarCorreta()
+        {
+            // arrange
+            var orcamento = _fixture.NovoOrcamento();
+            var dataEsperada = orcamento.DtOrcamento.AddDays(30);
+
+            //act
+            orcamento.DefinirValidade(30);
+
+            //assert
+            Assert.Equal(dataEsperada, orcamento.Validade.Data);
+            Assert.Equal(30, orcamento.Validade.Dias);
+        }
+
+        [Fact]
+        public void TentarDefinirDiasDeValidadeMenorQueZeroDeveRetornarException()
+        {
+            // arrange
+            var orcamento = _fixture.NovoOrcamento();
+
+            //act & assert
+            Assert.Throws<DomainException>(() => orcamento.DefinirValidade(-1));
+        }
+
+        [Fact]
+        public void AdicionarItemAoOrcamento()
+        {
+            // arrange
+            var orcamento = _fixture.NovoOrcamento();
+            var produto = new OrcamentoProduto(Core.Domain.Orcamentos.Enums.TpRegistroEnum.ProdutoFinal, "1000");
+            var preco = new OrcamentoItemPrecoTotal(10, 15);
+
+            //act
+            orcamento.AdicionarItem(new OrcamentoItem("", "", orcamento.NumOrcamento, produto, 5, preco));
         }
     }
 }

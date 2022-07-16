@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Dataplace.Imersao.Core.Domain.Excepions;
+using System;
 
 namespace Dataplace.Imersao.Core.Domain.Orcamentos.ValueObjects
 {
@@ -8,7 +9,7 @@ namespace Dataplace.Imersao.Core.Domain.Orcamentos.ValueObjects
         public OrcamentoValidade(Orcamento orcamento, int dias)
         {
             if(dias < 0)
-                throw new ArgumentOutOfRangeException(nameof(dias));
+                throw new DomainException("A quantidade de dias de validade não pode ser menor que zero!");
 
             Dias = dias;
             Data = orcamento.DtOrcamento.AddDays(dias).Date;

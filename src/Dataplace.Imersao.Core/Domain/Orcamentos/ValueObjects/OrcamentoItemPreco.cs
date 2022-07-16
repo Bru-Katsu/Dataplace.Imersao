@@ -13,7 +13,7 @@ namespace Dataplace.Imersao.Core.Domain.Orcamentos.ValueObjects
         public decimal PercAltPreco { get; protected set; }
     }
 
-    public  class OrcamentoItemPrecoTotal : OrcamentoItemPreco
+    public class OrcamentoItemPrecoTotal : OrcamentoItemPreco
     {
         public OrcamentoItemPrecoTotal(decimal precoTabela, decimal precoVenda) 
         {
@@ -27,9 +27,9 @@ namespace Dataplace.Imersao.Core.Domain.Orcamentos.ValueObjects
             this.PrecoVenda = precoVenda;
             this.PercAltPreco = (precoVenda * 100 / precoTabela) - 100;
         }
-    }
+    }   
 
-    public  class OrcamentoItemPrecoPercentual : OrcamentoItemPreco
+    public class OrcamentoItemPrecoPercentual : OrcamentoItemPreco
     {
         public OrcamentoItemPrecoPercentual(decimal precoTabela, decimal perAltPreco) 
         {
