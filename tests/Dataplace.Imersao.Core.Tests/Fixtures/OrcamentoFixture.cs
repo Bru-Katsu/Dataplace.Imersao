@@ -14,7 +14,7 @@ namespace Dataplace.Imersao.Core.Tests.Fixtures
         internal OrcamentoTabelaPreco TabelaPreco = new OrcamentoTabelaPreco("2022", 1);
 
 
-        public Orcamento NovoOrcamento()
+        public Orcamento NovoOrcamentoValido()
         {
             return Orcamento.Factory.Orcamento(
                 CdEmpresa, 
@@ -23,6 +23,18 @@ namespace Dataplace.Imersao.Core.Tests.Fixtures
                 Cliente, 
                 UserName,
                 Vendedor, 
+                TabelaPreco);
+        }
+
+        public Orcamento NovoOrcamentoInvalido()
+        {
+            return Orcamento.Factory.Orcamento(
+                "      ",
+                "   ",
+                0,
+                Cliente,
+                UserName,
+                Vendedor,
                 TabelaPreco);
         }
 

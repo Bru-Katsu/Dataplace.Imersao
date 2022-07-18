@@ -3,17 +3,11 @@ using Dataplace.Imersao.Core.Domain.Orcamentos.Enums;
 using Dataplace.Imersao.Core.Domain.Orcamentos.ValueObjects;
 using Dataplace.Imersao.Core.Shared;
 using FluentValidation;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Dataplace.Imersao.Core.Domain.Orcamentos
 {
     public class OrcamentoItem : Entity<OrcamentoItem>
     {
-
         public OrcamentoItem(string cdEmpresa, string cdFilial, int numOrcamento, OrcamentoProduto produto, decimal quantidade, OrcamentoItemPreco preco)
         {
             CdEmpresa = cdEmpresa;
@@ -33,7 +27,8 @@ namespace Dataplace.Imersao.Core.Domain.Orcamentos
         public OrcamentoProduto Produto { get; private set; }
         public OrcamentoItemEnum Situacao { get; private set; }
 
-        public void FecharOrcamento()
+        #region Setters Situação
+        public void FecharItem()
         {
             if (Situacao == OrcamentoItemEnum.Fechado)
                 throw new DomainException("O item já está fechado!");
@@ -49,19 +44,20 @@ namespace Dataplace.Imersao.Core.Domain.Orcamentos
             Situacao = OrcamentoItemEnum.Aberto;
         }
 
-        public void CancelarOrcamento()
+        public void CancelarItem()
         {
             if (Situacao == OrcamentoItemEnum.Cancelado)
                 throw new DomainException("O item já está cancelado!");
 
             Situacao = OrcamentoItemEnum.Cancelado;
         }
+        #endregion
 
         public decimal Quantidade { get; private set; }
         public OrcamentoItemPreco Preco { get; private set; }
         public decimal Total { get; private set; }
 
-        #region setters
+        #region Setters Preço
         private void AtribuirPreco(OrcamentoItemPreco preco)
         {
             Preco = preco;
@@ -83,8 +79,8 @@ namespace Dataplace.Imersao.Core.Domain.Orcamentos
         #region Validations
         public override bool IsValid()
         {
-            Validate(this);
             CreateValidations();
+            ValidationResult = Validate(this);
             return ValidationResult.IsValid;
         }
 
@@ -92,19 +88,25 @@ namespace Dataplace.Imersao.Core.Domain.Orcamentos
         {
             RuleFor(x => x.CdEmpresa)
                 .NotEmpty()
-                .WithMessage("Código da empresa é requirido!");
+                .WithMessage("Código da empresa é requirido!")
+                .MaximumLength(5)
+                .WithMessage("O tamanho máximo do código da empresa é de 5 caracteres!");
 
             RuleFor(x => x.CdFilial)
                 .NotEmpty()
-                .WithMessage("Código da filial é requirido!");
+                .WithMessage("Código da filial é requirido!")
+                .MaximumLength(2)
+                .WithMessage("O tamanho máximo do código da filial é de 2 caracteres!");
 
             RuleFor(x => x.NumOrcamento)
                 .GreaterThan(0)
                 .WithMessage("Número do orçamento inválido!");
+
+            RuleFor(x => x.Quantidade)
+                .GreaterThan(0)
+                .WithMessage("A quantidade precisa ser maior que zero!");
         }
 
         #endregion
     }
-
-
 }

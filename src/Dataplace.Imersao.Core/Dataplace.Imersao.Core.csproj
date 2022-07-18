@@ -65,6 +65,7 @@
     <Compile Include="Domain\Orcamentos\ValueObjects\OrcamentoVendedor.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Shared\Entity.cs" />
+    <Compile Include="Shared\Validable.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Application\" />

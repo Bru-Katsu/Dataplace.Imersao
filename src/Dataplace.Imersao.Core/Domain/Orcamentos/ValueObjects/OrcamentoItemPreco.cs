@@ -1,8 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Dataplace.Imersao.Core.Domain.Excepions;
+using System;
 
 namespace Dataplace.Imersao.Core.Domain.Orcamentos.ValueObjects
 {
@@ -18,14 +15,14 @@ namespace Dataplace.Imersao.Core.Domain.Orcamentos.ValueObjects
         public OrcamentoItemPrecoTotal(decimal precoTabela, decimal precoVenda) 
         {
             if(precoTabela <= 0)
-                throw new ArgumentOutOfRangeException(nameof(precoTabela));
+                throw new DomainException("Preço de tabela não pode ser negativo!");
 
             if (precoVenda <= 0)
-                throw new ArgumentOutOfRangeException(nameof(precoVenda));
+                throw new DomainException("Preço de venta não pode ser negativo!");
 
-            this.PrecoTabela = precoTabela;
-            this.PrecoVenda = precoVenda;
-            this.PercAltPreco = (precoVenda * 100 / precoTabela) - 100;
+            PrecoTabela = precoTabela;
+            PrecoVenda = precoVenda;
+            PercAltPreco = (precoVenda * 100 / precoTabela) - 100;
         }
     }   
 
@@ -34,17 +31,17 @@ namespace Dataplace.Imersao.Core.Domain.Orcamentos.ValueObjects
         public OrcamentoItemPrecoPercentual(decimal precoTabela, decimal perAltPreco) 
         {
             if (precoTabela <= 0)
-                throw new ArgumentOutOfRangeException(nameof(precoTabela));
+                throw new DomainException("Preço de tabela não pode ser negativo!");
 
-            this.PrecoTabela = precoTabela;
-            this.PercAltPreco = perAltPreco;
+            PrecoTabela = precoTabela;
+            PercAltPreco = perAltPreco;
 
             var decontoAcrescimo = precoTabela * Math.Abs(perAltPreco) / 100;
 
             if (perAltPreco < 0)
-                this.PrecoVenda = this.PrecoTabela - decontoAcrescimo;
+                PrecoVenda = PrecoTabela - decontoAcrescimo;
             else
-                this.PrecoVenda = this.PrecoTabela + decontoAcrescimo;
+                PrecoVenda = PrecoTabela + decontoAcrescimo;
         }
     }
 }

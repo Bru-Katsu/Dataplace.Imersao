@@ -11,10 +11,8 @@ namespace Dataplace.Imersao.Core.Domain.Orcamentos
 {
     public class Orcamento : Entity<Orcamento>
     {
-        private Orcamento(string cdEmpresa, string cdFilial, int numOrcamento, OrcamentoCliente cliente,
-            OrcamentoUsuario usuario, OrcamentoVendedor vendedor, OrcamentoTabelaPreco tabelaPreco)
+        private Orcamento(string cdEmpresa, string cdFilial, int numOrcamento, OrcamentoCliente cliente, OrcamentoUsuario usuario, OrcamentoVendedor vendedor, OrcamentoTabelaPreco tabelaPreco)
         {
-
             CdEmpresa = cdEmpresa;
             CdFilial = cdFilial;
             Cliente = cliente;
@@ -26,7 +24,7 @@ namespace Dataplace.Imersao.Core.Domain.Orcamentos
             // default
             Situacao = OrcamentoStatusEnum.Aberto;
             DtOrcamento = DateTime.Now.Date;
-            ValorTotal = 0;
+            ValorTotal = decimal.Zero;
 
             _itens = new List<OrcamentoItem>();
         }
@@ -40,32 +38,8 @@ namespace Dataplace.Imersao.Core.Domain.Orcamentos
         public OrcamentoUsuario Usuario { get; private set; }
 
         public OrcamentoStatusEnum Situacao { get; private set; }
-        public OrcamentoValidade Validade { get; private set; }
 
-        public OrcamentoTabelaPreco TabelaPreco { get; private set; }
-        public decimal ValorTotal { get; private set; }
-        
-        public DateTime DtOrcamento { get; private set; }
-        public DateTime? DtFechamento { get; private set; }
-
-        #region Itens
-        public IReadOnlyCollection<OrcamentoItem> Itens => _itens.ToList();
-        
-        public ICollection<OrcamentoItem> _itens;
-        public void AdicionarItem(OrcamentoItem item)
-        {
-            //validar item
-            if (item == null)
-                throw new DomainException("Item inválido!");
-
-            if (!item.IsValid())
-                throw new DomainException("Item inválido!");
-
-            _itens.Add(item);
-            ValorTotal += item.Total;
-        }
-        #endregion
-
+        #region Setters Situação
         public void FecharOrcamento()
         {
             if (Situacao == OrcamentoStatusEnum.Fechado)
@@ -92,18 +66,46 @@ namespace Dataplace.Imersao.Core.Domain.Orcamentos
             Situacao = OrcamentoStatusEnum.Cancelado;
             DtFechamento = null;
         }
+        #endregion
 
+        public OrcamentoValidade Validade { get; private set; }
+
+        #region Setters Validade
         public void DefinirValidade(int diasValidade)
         {
-            this.Validade = new OrcamentoValidade(this, diasValidade);
+            Validade = new OrcamentoValidade(this, diasValidade);
         }
+        #endregion
 
-        #region validations
+        public OrcamentoTabelaPreco TabelaPreco { get; private set; }
+        public decimal ValorTotal { get; private set; }
+        
+        public DateTime DtOrcamento { get; private set; }
+        public DateTime? DtFechamento { get; private set; }
 
+        #region Itens
+        public IReadOnlyCollection<OrcamentoItem> Itens => _itens.ToList();
+        
+        public ICollection<OrcamentoItem> _itens;
+        public void AdicionarItem(OrcamentoItem item)
+        {
+            //validar item
+            if (item == null)
+                throw new DomainException("O Item não pode ser nulo!");
+
+            if (!item.IsValid())
+                throw new DomainException("Item inválido!");
+
+            _itens.Add(item);
+            ValorTotal += item.Total;
+        }
+        #endregion
+
+        #region Validations
         public override bool IsValid()
         {
-            Validate(this);
             CreateValidations();
+            ValidationResult = Validate(this);
             return ValidationResult.IsValid;
         }
 
@@ -111,25 +113,23 @@ namespace Dataplace.Imersao.Core.Domain.Orcamentos
         {
             RuleFor(x => x.CdEmpresa)
                 .NotEmpty()
-                .WithMessage("Código da empresa é requirido!");
+                .WithMessage("Código da empresa é requirido!")
+                .MaximumLength(5)
+                .WithMessage("O tamanho máximo do código da empresa é de 5 caracteres!");
 
-            RuleFor(x => x.CdEmpresa)
+            RuleFor(x => x.CdFilial)
                 .NotEmpty()
-                .WithMessage("Código da empresa é requirido!");
+                .WithMessage("Código da filial é requirido!")
+                .MaximumLength(2)
+                .WithMessage("O tamanho máximo do código da filial é de 2 caracteres!");
 
             RuleFor(x => x.NumOrcamento)
                 .GreaterThan(0)
                 .WithMessage("Número do orçamento inválido!");
-
-            RuleFor(x => x.DtFechamento)
-                .NotNull()
-                .WithMessage("Data de fechamento inválida!")
-                .When(x => x.Situacao == OrcamentoStatusEnum.Fechado);
         }
-
         #endregion
 
-        #region factory methods
+        #region Factory Methods
         public static class Factory
         {
             public static Orcamento Orcamento(string cdEmpresa, string cdFilial, int numOrcamento, OrcamentoCliente cliente , OrcamentoUsuario usuario, OrcamentoVendedor vendedor, OrcamentoTabelaPreco tabelaPreco)

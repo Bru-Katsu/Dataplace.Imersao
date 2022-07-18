@@ -1,9 +1,5 @@
-﻿using Dataplace.Imersao.Core.Domain.Orcamentos.Enums;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Dataplace.Imersao.Core.Domain.Excepions;
+using Dataplace.Imersao.Core.Domain.Orcamentos.Enums;
 
 namespace Dataplace.Imersao.Core.Domain.Orcamentos.ValueObjects
 {
@@ -11,6 +7,12 @@ namespace Dataplace.Imersao.Core.Domain.Orcamentos.ValueObjects
     {
         public OrcamentoProduto(TpRegistroEnum tpRegistro, string cdRegistro)
         {
+            if (string.IsNullOrEmpty(cdRegistro))
+                throw new DomainException("O Código da tabela não pode ser branco ou nulo!");
+
+            if (cdRegistro.Length > 5)
+                throw new DomainException("O Código da tabela não pode ser maior que 5 caracteres!");
+
             TpProduto = tpRegistro;
             CdProduto = cdRegistro;
         }
